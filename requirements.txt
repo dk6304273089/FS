@@ -1,0 +1,10 @@
+pandas
+dvc
+pytest
+sklearn
+pandas
+numpy
+tox
+flake8
+flask
+gunicorn
