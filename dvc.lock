@@ -1,0 +1,56 @@
+schema: '2.0'
+stages:
+  load_data:
+    cmd: python src/load_data.py --config=params.yaml
+    deps:
+    - path: data_given/heart.csv
+      md5: 9bd40cdf06a51ed4518172d52823465d
+      size: 11328
+    - path: src/get_data.py
+      md5: 72504dfe816007fa2c969ccc3c41c59c
+      size: 629
+    - path: src/load_data.py
+      md5: 922558c0e0b14503d22a955cf32312ec
+      size: 501
+    outs:
+    - path: data/raw/heart.csv
+      md5: f6f9f0fff98d64d52c81ad3971dff618
+      size: 11585
+  split_data:
+    cmd: python src/split_data.py --config=params.yaml
+    deps:
+    - path: data/raw/heart.csv
+      md5: f6f9f0fff98d64d52c81ad3971dff618
+      size: 11585
+    - path: src/split_data.py
+      md5: f7045e68d4057b6197384f4516846d80
+      size: 1035
+    outs:
+    - path: data/processed/test_heart.csv
+      md5: beebf3ba0e25a20f903b3fc3c45d769d
+      size: 2397
+    - path: data/processed/train_heart.csv
+      md5: 7a7e7ef202f072df63ba0a9ab4c204b2
+      size: 9269
+  train_and_evaluate:
+    cmd: python src/train_and_evaluate.py --config=params.yaml
+    deps:
+    - path: data/processed/test_heart.csv
+      md5: beebf3ba0e25a20f903b3fc3c45d769d
+      size: 2397
+    - path: data/processed/train_heart.csv
+      md5: 7a7e7ef202f072df63ba0a9ab4c204b2
+      size: 9269
+    - path: src/train_and_evaluate.py
+      md5: b7833b15ca929acd7d43c8715ac7aa4f
+      size: 2984
+    outs:
+    - path: report/params.json
+      md5: c069dad9e0d48ddaef37e31265ee5ed7
+      size: 201
+    - path: report/scores.json
+      md5: 3f6099163b76fd8713bf915ea2a76f4e
+      size: 84
+    - path: saved_models/model.joblib
+      md5: afd441d024c39529f8b13cea21a6a5be
+      size: 836656
