@@ -11,19 +11,13 @@ split_data:
   test_path: data/processed/test_heart.csv
   test_size: 0.2
 estimators:
-  xgboost:
+  random:
     params:
-      # alpha: 0.88
-      # l1_ratio: 0.89
-      learning_rate: 0.1
-      l1_ratio: 0.4
-      n_estimators: 1000
+      n_estimators: 100
+      criterion: "gini"
       max_depth: 5
-      min_child_weight: 1
-      gamma: 0
-      subsample: 0.8
-      colsample_bytree: 0.8
-      random_state: 42
+      min_samples_split: 3
+      max_features: "auto"
 
 model_dir: saved_models
 

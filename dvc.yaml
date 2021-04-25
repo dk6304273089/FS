@@ -22,6 +22,12 @@ stages:
       - data/processed/train_heart.csv
       - data/processed/test_heart.csv
       - src/train_and_evaluate.py
+    params:
+      - estimators.random.params.n_estimators
+      - estimators.random.params.criterion
+      - estimators.random.params.max_depth
+      - estimators.random.params.min_samples_split
+      - estimators.random.params.max_features
     metrics:
     - report/scores.json:
         cache: false

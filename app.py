@@ -6,9 +6,19 @@ from pywebio.output import *
 from pywebio import start_server
 import pickle
 import argparse
-model = pickle.load(open('classifier.pkl', 'rb'))
-app = Flask(__name__)
+import yaml
+import joblib
+params_path = "params.yaml"
 
+def read_params(config_path=params_path):
+    with open(config_path) as yaml_file:
+        config = yaml.safe_load(yaml_file)
+    return config
+
+config = read_params(params_path)
+model_dir_path = config["webapp_model_dir"]
+model = joblib.load(model_dir_path)
+app = Flask(__name__)
 def predict():
     age=input("enter the value of age: ",type=NUMBER)
     sex=radio("CHOOSE THE GENDER: ",options=[0,1])
@@ -24,9 +34,8 @@ def predict():
     ca=input("enter the ca: ",type=NUMBER)
     thal=input("enter the value of thal: ",type=NUMBER)
 
-    prediction=model.predict([[age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal]])
-    output=prediction[0]
-    put_text("the target value is",output)
+    prediction=model.predict([[age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal]]).tolist()[0]
+    put_text("the target value is",prediction)
 
 app.add_url_rule('/tool', 'webio_view', webio_view(predict),
             methods=['GET', 'POST', 'OPTIONS'])

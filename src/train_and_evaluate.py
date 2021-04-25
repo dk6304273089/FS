@@ -6,26 +6,25 @@ import pandas as pd
 import numpy as np
 from get_data import read_params
 import argparse
-
+import joblib
 import pickle
 import json
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import r2_score
-from sklearn.ensemble import RandomForestClassifier as rc
+from sklearn.ensemble import RandomForestClassifier
 def train_and_evaluate(config_path):
     config = read_params(config_path)
     test_data_path = config["split_data"]["test_path"]
     train_data_path = config["split_data"]["train_path"]
     random_state = config["base"]["random_state"]
     model_dir = config["model_dir"]
-    learning_rate=config["estimators"]["xgboost"]["params"]["learning_rate"]
-    n_estimators= config["estimators"]["xgboost"]["params"]["n_estimators"]
-    max_depth = config["estimators"]["xgboost"]["params"]["max_depth"]
-    min_child_weight = config["estimators"]["xgboost"]["params"]["min_child_weight"]
-    gamma = config["estimators"]["xgboost"]["params"]["gamma"]
-    subsample = config["estimators"]["xgboost"]["params"]["subsample"]
-    colsample_bytree = config["estimators"]["xgboost"]["params"]["colsample_bytree"]
-    target = config["base"]["target_col"]
+    n_estimators=config["estimators"]["random"]["params"]["n_estimators"]
+    criterion = config["estimators"]["random"]["params"]["criterion"]
+    max_depth= config["estimators"]["random"]["params"]["max_depth"]
+    min_samples_split = config["estimators"]["random"]["params"]["min_samples_split"]
+    max_features= config["estimators"]["random"]["params"]["max_features"]
+    target = [config["base"]["target_col"]]
+
 
     train = pd.read_csv(train_data_path, sep=",")
     test = pd.read_csv(test_data_path, sep=",")
@@ -36,9 +35,8 @@ def train_and_evaluate(config_path):
     train_x = train.drop(target, axis=1)
     test_x = test.drop(target, axis=1)
 
-    lr = rc(n_estimators=n_estimators,max_depth=max_depth,
-        random_state=random_state)
-    lr.fit(train_x, train_y)
+    lr = RandomForestClassifier(n_estimators=n_estimators,max_depth=max_depth,criterion=criterion,min_samples_split=min_samples_split,max_features=max_features)
+    lr.fit(train_x, train_y.values.ravel())
 
     x_predicted = lr.predict(test_x)
     accuracy_scor=accuracy_score(test_y,x_predicted)
@@ -57,21 +55,20 @@ def train_and_evaluate(config_path):
 
     with open(params_file, "w") as f:
         params = {
-            "learning_rate": learning_rate,
+             "criterion":criterion,
             "n_estimators": n_estimators,
+            "min_samples_split":min_samples_split,
             "max_depth":max_depth,
-            "min_child_weight":min_child_weight,
-            "gamma":gamma,
-             "subsample":subsample,
-            "colsample_bytree":colsample_bytree,
+            "max_features":max_features,
             "random_state":random_state
         }
         json.dump(params, f, indent=4)
     #####################################################
 
-    file = open('classifier.pkl', 'wb')
-    pickle.dump(lr, file)
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = os.path.join(model_dir, "model.joblib")
 
+    joblib.dump(lr, model_path)
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
     args.add_argument("--config", default="params.yaml")
