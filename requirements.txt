@@ -8,6 +8,5 @@ tox
 flake8
 flask
 gunicorn
-xgboost
 pywebio
 flask
