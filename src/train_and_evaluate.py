@@ -62,7 +62,7 @@ def train_and_evaluate(config_path):
             "max_features":max_features,
             "random_state":random_state
         }
-        json.dump(params, f, indent=4)
+        json.dump(params, f, indent=3)
     #####################################################
 
     os.makedirs(model_dir, exist_ok=True)
