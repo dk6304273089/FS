@@ -6,11 +6,12 @@ import pandas as pd
 import numpy as np
 from get_data import read_params
 import argparse
-import joblib
+
+import pickle
 import json
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import r2_score
-
+from sklearn.ensemble import RandomForestClassifier as rc
 def train_and_evaluate(config_path):
     config = read_params(config_path)
     test_data_path = config["split_data"]["test_path"]
@@ -35,8 +36,7 @@ def train_and_evaluate(config_path):
     train_x = train.drop(target, axis=1)
     test_x = test.drop(target, axis=1)
 
-    lr = xgboost.XGBClassifier(learning_rate=learning_rate,n_estimators=n_estimators,max_depth=max_depth,min_child_weight=min_child_weight,gamma=gamma,
-      subsample=subsample, colsample_bytree=colsample_bytree,
+    lr = rc(n_estimators=n_estimators,max_depth=max_depth,
         random_state=random_state)
     lr.fit(train_x, train_y)
 
@@ -69,10 +69,8 @@ def train_and_evaluate(config_path):
         json.dump(params, f, indent=4)
     #####################################################
 
-    os.makedirs(model_dir, exist_ok=True)
-    model_path = os.path.join(model_dir, "model.joblib")
-
-    joblib.dump(lr, model_path)
+    file = open('classifier.pkl', 'wb')
+    pickle.dump(lr, file)
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
